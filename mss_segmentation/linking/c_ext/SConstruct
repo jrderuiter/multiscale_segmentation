@@ -1,0 +1,3 @@
+env = Environment()
+env.Replace(CFLAGS=['-O3', '-Wall', '-pedantic', '-ansi', '-std=c99'])
+env.SharedLibrary('link', ['link.c', 'link_window.c', 'link_parents.c', 'link_shared.c'])
