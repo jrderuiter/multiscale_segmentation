@@ -40,6 +40,9 @@ def expand_segmentation(originalSignal, segmentEnds):
 	return expandedSignal
 
 def expand_segmentation_for_range(originalSignal, segmentEnds, rangeTuple):
+	assert rangeTuple[0] >= 0 and rangeTuple[0] < len(originalSignal)
+	assert rangeTuple[1] > 0 and rangeTuple[1] <= len(originalSignal)
+
 	if type(segmentEnds) is dict:
 		expandedSignal = vstack([expand_segmentation_for_range(originalSignal, segmentEnds[scale], rangeTuple) for scale in range(len(segmentEnds))])
 	else:
@@ -48,10 +51,12 @@ def expand_segmentation_for_range(originalSignal, segmentEnds, rangeTuple):
 		lastSegIndex = searchsorted(segmentEnds, rangeEnd)
 
 		expandedSignal = empty(rangeEnd - rangeStart)
+
+		startIndex = 0
 		segmentStart = segmentEnds[firstSegIndex-1] if firstSegIndex > 0 else 0
 		for segmentEnd in segmentEnds[firstSegIndex:lastSegIndex+1]:
-			startIndex, endIndex = max(segmentStart, rangeStart), min(segmentEnd, rangeEnd)
+			endIndex = min(segmentEnd - rangeStart, rangeEnd)
 			expandedSignal[startIndex:endIndex] = mean(originalSignal[segmentStart:segmentEnd])
-			segmentStart = segmentEnd
+			segmentStart, startIndex = segmentEnd, endIndex
 		
 	return expandedSignal
