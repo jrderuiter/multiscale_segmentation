@@ -1,9 +1,10 @@
 import sys
 from os import path
-sys.path.insert(0, path.abspath(path.join(path.dirname(__file__), '../')))
+sys.path.insert(0, path.abspath(path.join(path.dirname(__file__), '../lib')))
+
+from mss_segmentation.segment import segment_signal, LINK_TYPES
 
 from pprint import pprint as pp
-from mss_segmentation.segment import segment_signal, LINK_TYPES
 from scipy.io import loadmat
 
 def main(argv):
@@ -15,9 +16,6 @@ def main(argv):
 	print 'Comparing to reference'
 	for i in range(1, len(refMapping)):
 		print "- Scale %d equal: %s" % (i, str(refMapping[i] == mapping[i]))
-
-		#if refMapping[i] != mapping[i]:
-		#	print difference(refMapping[i], mapping[i])
 
 def refKM_to_mapping(refKM):
 	mapping = {}
