@@ -33,7 +33,7 @@ from os import path
 
 CUT_OFF = 300
 
-_link = load_library('liblink', path.join(path.dirname(__file__), 'c_ext'))
+_link = load_library('link', path.join(path.dirname(__file__), 'c_ext'))
 
 _link.link_parents.argtypes = [ndpointer(dtype=np_intc), c_int, c_double, ndpointer(dtype=np_double), ndpointer(dtype=np_intc), c_int,\
 							   ndpointer(dtype=np_double), ndpointer(dtype=np_double), c_int, c_double, ndpointer(dtype=np_intc), c_int,
