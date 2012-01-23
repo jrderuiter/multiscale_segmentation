@@ -1,6 +1,6 @@
 import sys
 from os import path
-sys.path.insert(0, path.abspath('../'))
+sys.path.insert(0, path.abspath(path.join(path.dirname(__file__), '../')))
 
 from pprint import pprint as pp
 from mss_segmentation.segment import segment_signal, LINK_TYPES

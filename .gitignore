@@ -3,3 +3,5 @@
 *.dylib
 .sconsign.dblite
 *.os
+mss_segmentation/linking/c_ext/link.so
+build/
