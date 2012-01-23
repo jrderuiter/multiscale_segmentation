@@ -13,6 +13,12 @@ The algorithm employs three main steps in its segmentation procedure:
 
 Step 1 is implemented using convolve1d and fftconvolve from the scipy software package, where convolve1d is used for small inputs and fftconvolve for larger inputs to speed up the processing. Step 2 is implemented in both python and C (for more speed). The C implementation is used by default, though this does require building of the C extension files.
 
+## Installation
+
+The library can currently be used by adding the libary path to your python path. Note that the C extentions must be built first, which can be done with the setup.py script using the following command in the library directory: 
+
+python setup.py build_ext --inplace
+
 ## Usage
 
 Currently, a signal can be segmented by passing a vector of its values to the segment_signal function along with the number of desired scales. This returns a mapping dictionary representing the build segmentation tree and a dictionary of segment ends, which contains the end of each segment per scale. The dictionary of segment ends can be transformed to segment tuples (start, end) using the segment_ends_to_segments function.
