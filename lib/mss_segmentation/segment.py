@@ -25,7 +25,7 @@
 ''' 
 
 from math import log, ceil
-from numpy import asarray, nonzero, power, exp, sqrt, arange, diff, unique, append, mean
+from numpy import asarray, nonzero, power, exp, sqrt, arange, diff, unique, append, mean, ndarray
 from numpy import int as int_type
 from numpy import double as np_double
 
@@ -34,11 +34,13 @@ from linking.link import link, LINK_TYPES
 
 DELTA_TAU = 0.5 * log(2)
 
-def segment_signal(signal, numScales, deltaTau=None, kMin=None, linkType=None):
+def segment_signal(signal, numScales, deltaTau=None, kMin=None, linkType=None, doNodeMapping=False):
+	assert type(signal) == list or (type(signal) == ndarray and signal.ndim == 1)
+
 	if deltaTau is None: deltaTau = DELTA_TAU
 	if kMin is None: kMin = pow((1 - exp(-2 * deltaTau)), -0.5)
 
-	signal = asarray(signal).flatten()
+	if type(signal) == list: signal = asarray(signal).flatten()
 	signalLength, maxDiff, numLeadingZeros, numTrailingZeros = _signal_properties(signal)
 
 	# Calculate scale sigma's
@@ -49,10 +51,13 @@ def segment_signal(signal, numScales, deltaTau=None, kMin=None, linkType=None):
 	if nodeIds[-1] != signalLength: 
 		nodeIds = append(nodeIds, signalLength)
 	
+	# Setup initial loop vars
+	segmentEnds  = { 0: nodeIds }
+	if doNodeMapping: nodeMapping = {}
+
 	# Loop!
 	baseSignal = asarray(signal, dtype=np_double)
 	prevScaleSignal, prevSegmentEnds = baseSignal, nodeIds
-	nodeMapping, segmentEnds  = {}, { 0: nodeIds }
 	for scaleIndex in range(1, numScales):
 		scaleSignal = convolve(baseSignal, scaleSigmaArray[scaleIndex])
 
@@ -61,12 +66,13 @@ def segment_signal(signal, numScales, deltaTau=None, kMin=None, linkType=None):
 		parents, scaleSegmentEnds = link(nodeIds, d, dcp, r, prevScaleSignal, scaleSignal, signalLength, \
 										 maxDiff, prevSegmentEnds, numLeadingZeros, numTrailingZeros, linkType=linkType)	
 
-		nodeMapping[scaleIndex] = zip(nodeIds, parents)
+		
+		if doNodeMapping: nodeMapping[scaleIndex] = zip(nodeIds, parents)
 		segmentEnds[scaleIndex] = scaleSegmentEnds
 
 		prevScaleSignal, prevSegmentEnds, nodeIds = scaleSignal, scaleSegmentEnds, unique(parents)
 
-	return nodeMapping, segmentEnds
+	return (segmentEnds, nodeMapping) if doNodeMapping else segmentEnds
 
 def segment_ends_to_segments(segmentEnds):
 	segments = {}

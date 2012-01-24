@@ -8,10 +8,10 @@ from pprint import pprint as pp
 from scipy.io import loadmat
 
 def main(argv):
-	refSignal = loadmat('refSignal')['V']
+	refSignal = loadmat('refSignal')['V'][:,0]
 	refMapping = refKM_to_mapping(loadmat('refKM')['KM'])
 
-	mapping, segments = segment_signal(refSignal, len(refMapping), linkType=LINK_TYPES.C_COMPOSITE)
+	segmentEnds, mapping = segment_signal(refSignal, len(refMapping), linkType=LINK_TYPES.C_COMPOSITE, doNodeMapping=True)
 
 	print 'Comparing to reference'
 	for i in range(1, len(refMapping)):
