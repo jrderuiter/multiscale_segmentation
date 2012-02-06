@@ -25,7 +25,7 @@
 ''' 
 
 from math import log, ceil
-from numpy import asarray, nonzero, power, exp, sqrt, arange, diff, unique, append, mean, ndarray
+from numpy import asarray, nonzero, power, exp, sqrt, arange, diff, unique, append, mean, ndarray, arange, union1d
 from numpy import int as int_type
 from numpy import double as np_double
 
@@ -34,7 +34,7 @@ from linking.link import link, LINK_TYPES
 
 DELTA_TAU = 0.5 * log(2)
 
-def segment_signal(signal, numScales, deltaTau=None, kMin=None, linkType=None, doNodeMapping=False):
+def segment_signal(signal, numScales, deltaTau=None, kMin=None, linkType=None, doNodeMapping=False, minNodeInterval=None):
 	assert type(signal) == list or (type(signal) == ndarray and signal.ndim == 1)
 
 	if deltaTau is None: deltaTau = DELTA_TAU
@@ -47,9 +47,7 @@ def segment_signal(signal, numScales, deltaTau=None, kMin=None, linkType=None, d
 	scaleSigmaArray = exp(arange(0, numScales) * deltaTau)
 
 	# Setup initial node set
-	nodeIds = nonzero(diff(signal, axis=0))[0] + 1
-	if nodeIds[-1] != signalLength: 
-		nodeIds = append(nodeIds, signalLength)
+	nodeIds = _initial_node_set(signal, signalLength, minNodeInterval)
 	
 	# Setup initial loop vars
 	segmentEnds  = { 0: nodeIds }
@@ -90,6 +88,18 @@ def _signal_properties(signal):
 	numTrailingZeros = signalLength - nonZeroIndices[-1] - 1
 	
 	return signalLength, maxDiff, numLeadingZeros, numTrailingZeros
+
+def _initial_node_set(signal, signalLength, minNodeInterval=None):
+	nodeIds = nonzero(diff(signal, axis=0))[0] + 1
+
+	if minNodeInterval is not None:
+		intervalNodeIds = arange(minNodeInterval, signalLength, minNodeInterval)
+		nodeIds = union1d(nodeIds, intervalNodeIds)
+
+	if nodeIds[-1] != signalLength: 
+		nodeIds = append(nodeIds, signalLength-1)
+
+	return nodeIds
 
 def _search_volume(scaleSigmaArray, scaleIndex, kMin):
 	currSigma, prevSigma = scaleSigmaArray[scaleIndex], scaleSigmaArray[scaleIndex-1]
