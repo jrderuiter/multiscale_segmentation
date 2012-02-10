@@ -25,8 +25,9 @@
 ''' 
 from numpy import arange, array
 from scipy.ndimage import convolve1d
-from scipy.signal import fftconvolve
 from scipy.stats import norm
+
+from fft.fftw import fft_convolve as fftw_convolve
 
 P_MIN = 1e-3
 KERNEL_CUTOFF = 600
@@ -39,12 +40,7 @@ def convolve(signal, sigma, pMin=None, cutoff=None):
 	if len(kernel) < cutoff:
 		convSignal = convolve1d(signal, kernel, mode='constant', cval=0.0)
 	else:
-		convSignal = fftconvolve(signal, kernel, mode='full')
-		
-		lenSignal, lenKernel = len(signal), len(kernel)
-		lowerBound = (lenKernel - 1)  / 2
-
-		convSignal = array(convSignal[lowerBound:lowerBound+lenSignal], copy=True, order='C')	# Copy into c-contigous array for c link compatability
+		convSignal = fftw_convolve(signal, kernel)
 	return convSignal
 	
 def convolution_kernel(sigma, signalLength, pMin=None):
