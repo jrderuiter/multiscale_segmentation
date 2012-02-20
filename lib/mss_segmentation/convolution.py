@@ -28,6 +28,7 @@ from scipy.ndimage import convolve1d
 from scipy.stats import norm
 
 from fft.fftw import fft_convolve as fftw_convolve
+from fft.scipy_fft import fft_convolve as sp_fft_convolve
 
 P_MIN = 1e-3
 KERNEL_CUTOFF = 600

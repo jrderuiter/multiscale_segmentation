@@ -2,6 +2,8 @@
 import fftw3f as fftw3
 import numpy as np
 
+NUM_THREADS = 4
+
 def fft_convolve(signal, kernel):
 	s1, s2 = len(signal), len(kernel)
 	size = s1 + s2 - 1
@@ -9,7 +11,7 @@ def fft_convolve(signal, kernel):
 
 	paddedSignal = _zero_pad_array(signal, fsize, dtype=np.float32)
 	fftSignal = fftw3.create_aligned_array(fsize//2+1, dtype=np.complex64)
-	fft = fftw3.Plan(paddedSignal, fftSignal, flags=['estimate'])
+	fft = fftw3.Plan(paddedSignal, fftSignal, flags=['estimate'], nthreads=NUM_THREADS)
 	fft.execute()
 	del paddedSignal
 
@@ -23,7 +25,7 @@ def fft_convolve(signal, kernel):
 	del fftKernel
 
 	convSignal = fftw3.create_aligned_array(fsize, dtype=np.float32)
-	ifft = fftw3.Plan(fftSignal, convSignal, direction=' backward', flags=['estimate'])
+	ifft = fftw3.Plan(fftSignal, convSignal, direction=' backward', flags=['estimate'], nthreads=NUM_THREADS)
 	ifft.execute()
 
 	fslice = slice((s2-1)/2, (s2-1)/2+s1)
